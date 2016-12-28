@@ -26,20 +26,20 @@ function f() {
 
     var firsts = [],
         nexts = {};
-    [].forEach.call(document.getElementsByClassName("message"), function(x) {
+        [].forEach.call(document.getElementsByClassName("message"), function(x) {
         var text = x.querySelector(".content");
         if (!text) return;
         text = text.textContent;
         var y = text;
-        y = y.replace(/https?:S+/g, "")
-            .replace(/,/g, " punc-comma")
+        y = y.replace(/https?\:\S+/g, "")
+            .replace(/\,/g, " punc-comma")
             .replace(/\?/g, " punc-question")
-            .replace(/!/g, " punc-exclamation")
-            .replace(/:/g, " punc-colon")
-            .replace(/;/g, " punc-semicolon")
+            .replace(/\!/g, " punc-exclamation")
+            .replace(/\:/g, " punc-colon")
+            .replace(/\;/g, " punc-semicolon")
             .replace(/\./g, " punc-period")
             .replace(/<ETHbot>/gi, "")
-            .replace(/^[@/<]S+/g, "")
+            .replace(/^[@/<]\S+/g, "")
             .replace(/@/g, "");
         y = y.split(" ")
             .map(function(w, i) {
