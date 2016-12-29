@@ -1,4 +1,5 @@
 function post(x, id) {
+    if (!x) x = "ERROR";
     document.getElementById('input').value = (id ? ":" + id + " ": "") + x;
     document.getElementById("sayit-button").click()
 }
@@ -13,7 +14,8 @@ var knowledge = {
     "pi": Math.PI,
     "e": Math.E,
     "my browser": "Chrome 55",
-    "ETHbot": "the best bot ever"
+    "ethbot": "the best bot ever",
+    "infinity": 1/0
 };
 
 function stringify(x) {
@@ -90,7 +92,6 @@ function f() {
                 if (k.innerHTML == "retry") k.click();
 
     var e = [].slice.call(document.getElementsByClassName("message")).slice(-1)[0];
-    console.log(e.children);
     var a = [].slice.call(document.getElementsByClassName("content")).slice(-1)[0].textContent;
     if (a == last_message) return;
     last_message = a;
@@ -100,7 +101,7 @@ function f() {
     var message_id = e.id.match(/\d+/).slice(-1)[0];
 
     console.log(a);
-    if (/@(?!ETH)/i.test(a)) return;
+    if (/@/i.test(a) && !/@ETH(b(ot?)?)?\b/.test(a)) return;
     if (username == "ETHbot") return;
     if (a.match(/http/) && !a.match(/ETH/i)) return;
 
@@ -262,7 +263,7 @@ function f() {
         var text = "",
             result = 0,
             words = [];
-        a.replace(/((?:(?! means )[^.?])+) means (.+)(?:\.|$)/i, function(_, x, y) {
+        a.replace(/((?:(?! means )[^.?])+) means (.+?)(?:\.|$)/i, function(_, x, y) {
             console.log(_, x, y)
             result = x.toLowerCase();
             var strings = [],
@@ -282,6 +283,8 @@ function f() {
         var firsts = [],
             nexts = {};
         [].forEach.call(document.getElementsByClassName("message"), function(x) {
+            var username = x.parentElement.parentElement.querySelector(".signature .username").textContent;
+            if (username === "ETHbot") return;
             var text = x.querySelector(".content");
             if (!text) return;
             text = text.textContent;
@@ -293,7 +296,7 @@ function f() {
                 .replace(/\:/g, " punc-colon")
                 .replace(/\;/g, " punc-semicolon")
                 .replace(/\./g, " punc-period")
-                .replace(/<ETHbot>/gi, "")
+                .replace(/<\S+?>\s+/gi, "")
                 .replace(/^[@/<]\S+/g, "")
                 .replace(/@/g, "");
             y = y.split(" ")
