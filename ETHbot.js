@@ -262,9 +262,9 @@ function f() {
         post("I know " + Object.keys(knowledge).join(", ") + ", plus basic math and arithmetic sequences.", message_id);
     }
     
-    else if (/forget (.+)/i.test(a)) {
+    else if (/forget ([^?]+?)(\.(?!\w)|$)/i.test(a)) {
         var items = [];
-        a.replace(/forget (.+?)(?:\.(?!\w)|$)/gi, function(_, x) {
+        a.replace(/forget ([^?]+?)(?:\.(?!\w)|$)/gi, function(_, x) {
             for (var y of x.split(/, ?(?:and)? ?/)) {
                 items.push(y);
                 delete knowledge[y];
