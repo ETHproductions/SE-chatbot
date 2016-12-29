@@ -7,7 +7,7 @@ var last_message = "";
 var commands = {};
 var math = Math,
     infinity = Infinity;
-var knowledge = {
+var knowledge = localStorage.hasOwnProperty("knowledge") ? JSON.parse(localStorage.getItem("knowledge")) : {
     "my name": "ETHbot",
     "the meaning of life": 42,
     "george washington": "the first president of the United States",
@@ -19,7 +19,7 @@ var knowledge = {
 };
 
 function stringify(x) {
-    return x.slice && x.slice(0, 8) == "DEFINED-" ? x.slice(8) : (typeof(x) == "string" ? "'" : typeof(x) == "object" ? "[" : "") + x + (typeof(x) == "string" ? "'" : typeof(x) == "object" ? "]" : "")
+    return x && x.slice && x.slice(0, 8) == "DEFINED-" ? x.slice(8) : (typeof(x) == "string" ? "'" : typeof(x) == "object" ? "[" : "") + x + (typeof(x) == "string" ? "'" : typeof(x) == "object" ? "]" : "")
 }
 
 function denumber(x) {
@@ -106,7 +106,7 @@ function f() {
     if (a.match(/http/) && !a.match(/ETH/i)) return;
 
     // Handle questions such as "What is your name?" "What is five times seven?" "Who is George Washington?"
-    if (a.match(/ (i|come)s[ ?]/i)) {
+    if (a.match(/ (i|come)s[ ?]/i) && !/zalgo|sock/i.test(username)) {
         var text = "",
             result = 0;
         a = denumber(a);
@@ -180,15 +180,18 @@ function f() {
                     failed = "",
                     original = result,
                     remove = [];
-                result = result.replace(/"(\\.|[^"\\])+"/g, function(x) {
+                result = result.replace(/(["'`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
                     strings[i] = x;
                     return '"' + i++ + '"'
                 });
                 for (var j of Object.keys(knowledge).sort(function(a, b) {
-                        return b.length - a.length
-                    })) result = result.replace(RegExp("\\b" + j + "\\b", "gi"), function(z) {
-                    return stringify(knowledge[j]);
-                });
+                    return b.length - a.length
+                })) result = denumber(result.replace(RegExp("\\b" + j + "\\b", "gi"), function(z) {
+                        return stringify(knowledge[j]);
+                    }).replace(/(['`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
+                    strings[i] = x;
+                    return '"' + i++ + '"'
+                }));
                 for (var j of remove) result = result.replace(j, "");
                 result = result.replace(/"(\d+)"/g, function(x, y) {
                     return strings[+y]
@@ -208,7 +211,8 @@ function f() {
         } else {
             var learned = [];
             var missed = [];
-            a.replace(/((?:[^?](?! is ))*.) is ([^.]+)\./gi, function(_, x, y) {
+            a.replace(/((?:[^?](?! is ))*.) is ([^.]+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
+                if (/[<>:,]/.test(x)) return;
                 result = x.toLowerCase().replace(/your/g, "my");
                 var strings = [],
                     i = 0,
@@ -218,7 +222,7 @@ function f() {
                     strings[i] = z;
                     return '"' + i++ + '"'
                 });
-                y = y.replace(/([A-Z]+[ -])*[A-Z]+/gi, function(z) {
+                y = y.replace(/(\w+[ -])*\w+/gi, function(z) {
                     if (knowledge.hasOwnProperty(z)) return "knowledge['" + z + "']";
                     failed = x;
                     return z
@@ -257,6 +261,17 @@ function f() {
     else if (/what do you know/i.test(a)) {
         post("I know " + Object.keys(knowledge).join(", ") + ", plus basic math and arithmetic sequences.", message_id);
     }
+    
+    else if (/forget (.+)/i.test(a)) {
+        var items = [];
+        a.replace(/forget (.+?)(?:\.(?!\w)|$)/gi, function(_, x) {
+            for (var y of x.split(/, ?(?:and)? ?/)) {
+                items.push(y);
+                delete knowledge[y];
+            }
+        });
+        post("Forgot these things: " + items.join(", "));
+    }
 
     // Handle definitions, such as "Pi is 3.14159265."
     else if (a.match(/ means[ ?]/i)) {
@@ -264,7 +279,6 @@ function f() {
             result = 0,
             words = [];
         a.replace(/((?:(?! means )[^.?])+) means (.+?)(?:\.|$)/i, function(_, x, y) {
-            console.log(_, x, y)
             result = x.toLowerCase();
             var strings = [],
                 i = 0,
@@ -281,7 +295,7 @@ function f() {
     // Generate a random sentence
     else {
         var firsts = [],
-            nexts = {};
+            nexts = {"because":["the","I"]};
         [].forEach.call(document.getElementsByClassName("message"), function(x) {
             var username = x.parentElement.parentElement.querySelector(".signature .username").textContent;
             if (username === "ETHbot") return;
@@ -350,6 +364,18 @@ function f() {
     }
 }
 
-post("ETHbot started.");
 
-setInterval(f, 500);
+var interval;
+
+function start() {
+    post("ETHbot started.");
+    interval = setInterval(f, 500);
+}
+
+function stop() {
+    post("Shutting down temporarily...");
+    clearInterval(interval);
+    localStorage.setItem("knowledge", JSON.stringify(knowledge));
+}
+
+start();
