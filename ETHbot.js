@@ -208,7 +208,7 @@ function f() {
                     if (/^I don't know/.test(e)) 
                         failed = e;
                     else
-                        evaled = "" + e;
+                        failed = "I got this error while evaluating " + result + ": '" + e + "'";
                 }
                 if (failed) text = failed;
                 else text = original[0].toUpperCase() + original.slice(1) + " is " + stringify(evaled);
@@ -218,7 +218,7 @@ function f() {
             var learned = [];
             var missed = [];
             a.replace(/((?:[^?](?! is ))*.) is (.+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
-                if (/[<>:,]/.test(x)) return;
+                if (/[<>:,()[\]?!;]/.test(x)) return;
                 result = x.toLowerCase().replace(/your/g, "my");
                 var strings = [],
                     i = 0,
@@ -268,15 +268,15 @@ function f() {
         post("I know " + Object.keys(knowledge).join(", ") + ", plus basic math and arithmetic sequences.", message_id);
     }
     
-    else if (/forget ([^?]+?)(\.(?!\w)|$)/i.test(a)) {
+    else if (/forget ([^?]+?)(\.(?!\w)|$)/gi.test(a)) {
         var items = [];
         a.replace(/forget ([^?]+?)(?:\.(?!\w)|$)/gi, function(_, x) {
-            for (var y of x.split(/,\s?(?:and)?\s?|\s+and\s+/)) {
+            for (var y of x.split(/,\s?(?:and)?\s?|\s+and\s+/)) if (knowledge.hasOwnProperty(y)) {
                 items.push(y);
                 delete knowledge[y];
             }
         });
-        post("Forgot these things: " + items.join(", "));
+        post("Forgot these things: " + items.join(", "), message_id);
     }
 
     // Handle definitions, such as "Pi is 3.14159265."
