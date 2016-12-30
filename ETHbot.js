@@ -90,6 +90,10 @@ function safeeval(code) {
     return eval(code);
 }
 
+function saferegex(str) {
+    return RegExp(str.replace(/[\[\](){}\\.?*+\-^$|]/g, "\\$&"));
+}
+
 function f() {
     for (var i of document.getElementsByClassName("pending"))
         for (var j of i.children)
@@ -193,7 +197,7 @@ function f() {
                 });
                 for (var j of Object.keys(knowledge).sort(function(a, b) {
                     return b.length - a.length
-                })) result = denumber(result.replace(RegExp("\\b" + j + "\\b", "gi"), function(z) {
+                })) result = denumber(result.replace(saferegex("\\b" + j + "\\b", "gi"), function(z) {
                         return stringify(knowledge[j]);
                     }).replace(/(['`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
                     strings[i] = x;
