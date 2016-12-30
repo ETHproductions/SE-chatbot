@@ -217,7 +217,7 @@ function f() {
         } else {
             var learned = [];
             var missed = [];
-            a.replace(/((?:[^?](?! is ))*.) is ([^.]+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
+            a.replace(/((?:[^?](?! is ))*.) is (.+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
                 if (/[<>:,]/.test(x)) return;
                 result = x.toLowerCase().replace(/your/g, "my");
                 var strings = [],
