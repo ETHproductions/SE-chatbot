@@ -32,6 +32,16 @@ function f() {
     }, 3000, y, message_id);
 }
 
-post("ETHbot started.");
+var interval;
 
-setInterval(f, 500);
+function start() {
+    post("ETHbot started.");
+    interval = setInterval(f, 500);
+}
+
+function stop() {
+    post("Shutting down temporarily...");
+    clearInterval(interval);
+}
+
+start();
