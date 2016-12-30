@@ -306,6 +306,15 @@ function f() {
     else if (/operator/i.test(a) && !isbot) {
         post("To define an operator, use 'means': 'concat means +.'", message_id);
     }
+    
+    else if (/Save\./.test(a) && !isbot) {
+        if (/^ETHp/.test(username)) {
+            save();
+            post("Sure thing, master!", message_id);
+        } else {
+            post("You're not my master...", message_id);
+        }
+    }
 
     // Generate a random sentence
     else {
@@ -402,6 +411,10 @@ function start() {
 function stop() {
     post("Shutting down temporarily...");
     clearInterval(interval);
+    save();
+}
+
+function save() {
     localStorage.setItem("knowledge", JSON.stringify(knowledge));
 }
 
