@@ -91,7 +91,7 @@ function safeeval(code) {
 }
 
 function saferegex(str) {
-    return RegExp(str.replace(/[\[\](){}\\.?*+\-^$|]/g, "\\$&"));
+    return str.replace(/[\[\](){}\\.?*+\-^$|]/g, "\\$&");
 }
 
 function f() {
@@ -195,14 +195,14 @@ function f() {
                     strings[i] = x;
                     return '"' + i++ + '"'
                 });
-                for (var j of Object.keys(knowledge).sort(function(a, b) {
-                    return b.length - a.length
-                })) result = denumber(result.replace(saferegex("\\b" + j + "\\b", "gi"), function(z) {
-                        return stringify(knowledge[j]);
-                    }).replace(/(['`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
-                    strings[i] = x;
-                    return '"' + i++ + '"'
-                }));
+                for (var j of Object.keys(knowledge).sort(function(a, b) { return b.length - a.length; })) {
+                    result = result.replace(RegExp("\\b" + saferegex(j) + "\\b", "gi"), stringify(knowledge[j]))
+                    result = result.replace(/(['`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
+                        strings[i] = x;
+                        return '"' + i++ + '"';
+                    });
+                    result = denumber(result);
+                }
                 for (var j of remove) result = result.replace(j, "");
                 result = result.replace(/"(\d+)"/g, function(x, y) {
                     return strings[+y]
