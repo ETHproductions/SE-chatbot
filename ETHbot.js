@@ -109,9 +109,11 @@ function f() {
     if (/@/i.test(a) && !/@ETH(b(ot?)?)?\b/.test(a)) return;
     if (username == "ETHbot") return;
     if (a.match(/http/) && !a.match(/ETH/i)) return;
+    
+    var isbot = /zalgo|sock|sanbot/i.test(username);
 
     // Handle questions such as "What is your name?" "What is five times seven?" "Who is George Washington?"
-    if (a.match(/ (i|come)s[ ?]/i) && !/zalgo|sock|sanbot/i.test(username)) {
+    if (a.match(/ (i|come)s[ ?]/i) && !isbot) {
         var text = "",
             result = 0;
         a = denumber(a);
@@ -264,11 +266,13 @@ function f() {
         post(text, message_id);
     }
     
+    // List everything you know
     else if (/what do you know/i.test(a)) {
         post("I know " + Object.keys(knowledge).join(", ") + ", plus basic math and arithmetic sequences.", message_id);
     }
     
-    else if (/forget ([^?]+?)(\.(?!\w)|$)/gi.test(a)) {
+    // Handle forgetting things
+    else if (/forget ([^?]+?)(\.(?!\w)|$)/gi.test(a) && !isbot) {
         var items = [];
         a.replace(/forget ([^?]+?)(?:\.(?!\w)|$)/gi, function(_, x) {
             for (var y of x.split(/,\s?(?:and)?\s?|\s+and\s+/)) if (knowledge.hasOwnProperty(y)) {
@@ -280,7 +284,7 @@ function f() {
     }
 
     // Handle definitions, such as "Pi is 3.14159265."
-    else if (a.match(/ means[ ?]/i)) {
+    else if (a.match(/ means[ ?]/i) && !isbot) {
         var text = "",
             result = 0,
             words = [];
@@ -296,6 +300,11 @@ function f() {
         post("Learned these words: " + words.map(function(x) {
             return x[0] + " (" + x[1] + ")"
         }).join(", "), message_id);
+    }
+    
+    // Post directions for defining an operator
+    else if (/operator/i.test(a) && !isbot) {
+        post("To define an operator, use 'means': 'concat means +.'", message_id);
     }
 
     // Generate a random sentence
