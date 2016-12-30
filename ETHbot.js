@@ -107,6 +107,7 @@ function f() {
     console.log(a);
     if (/@/i.test(a) && !/@ETH(b(ot?)?)?\b/.test(a)) return;
     if (username == "ETHbot") return;
+    if (a.match(/https?:\/\/\S+/) && !a.match(/ETH/i)) return;
     
     var isbot = /zalgo|sock|sanbot/i.test(username);
 
