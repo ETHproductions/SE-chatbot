@@ -311,9 +311,10 @@ function f() {
         post("To define an operator, use 'means': 'concat means +.'", message_id);
     }
     
-    else if (/Save\./.test(a) && !isbot) {
+    else if (/Save\.|Load\./.test(a) && !isbot) {
         if (/^ETHp/.test(username)) {
-            save();
+            if (/Save\./.test(a)) save();
+            if (/Load\./.test(a)) load();
             post("Sure thing, master!", message_id);
         } else {
             post("You're not my master...", message_id);
@@ -398,16 +399,7 @@ function f() {
 var interval;
 
 function start() {
-    knowledge = localStorage.hasOwnProperty("knowledge") ? JSON.parse(localStorage.getItem("knowledge")) : {
-        "my name": "ETHbot",
-        "the meaning of life": 42,
-        "george washington": "the first president of the United States",
-        "pi": Math.PI,
-        "e": Math.E,
-        "my browser": "Chrome 55",
-        "ethbot": "the best bot ever",
-        "infinity": 1/0
-    };
+    load();
     post("ETHbot started.");
     interval = setInterval(f, 500);
 }
@@ -420,6 +412,19 @@ function stop() {
 
 function save() {
     localStorage.setItem("knowledge", JSON.stringify(knowledge));
+}
+
+function load() {
+    knowledge = localStorage.hasOwnProperty("knowledge") ? JSON.parse(localStorage.getItem("knowledge")) : {
+        "my name": "ETHbot",
+        "the meaning of life": 42,
+        "george washington": "the first president of the United States",
+        "pi": Math.PI,
+        "e": Math.E,
+        "my browser": "Chrome 55",
+        "ethbot": "the best bot ever",
+        "infinity": 1/0
+    };
 }
 
 start();
