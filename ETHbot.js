@@ -40,16 +40,16 @@ function denumber(x) {
         " point ": ".",
         "to the power of": "**"
     };
-    for (i of Object.keys(signs)) x = x.replace(RegExp(i + "\\b", "gi"), signs[i]);
+    for (i of Object.keys(signs)) x = x.replace(RegExp("\\b" + i + "\\b", "gi"), signs[i]);
 
     var tens = ["zero", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
-    for (i in tens) x = x.replace(RegExp(tens[i] + "\\b", "gi"), +i * 10);
+    for (i in tens) x = x.replace(RegExp("\\b" + tens[i] + "\\b", "gi"), +i * 10);
 
     var teens = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
-    for (i in teens) x = x.replace(RegExp(teens[i] + "\\b", "gi"), +i + 10);
+    for (i in teens) x = x.replace(RegExp("\\b" + teens[i] + "\\b", "gi"), +i + 10);
 
     var digits = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
-    for (i in digits) x = x.replace(RegExp(digits[i] + "\\b", "gi"), +i);
+    for (i in digits) x = x.replace(RegExp("\\b" + digits[i] + "\\b", "gi"), +i);
     simplify();
 
     x = x.replace(/([\de+.-]+) ?hundred\b/gi, function(_, i) {
