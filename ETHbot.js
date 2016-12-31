@@ -197,7 +197,7 @@ function f() {
                     return '"' + i++ + '"'
                 });
                 for (var j of Object.keys(knowledge).sort(function(a, b) { return b.length - a.length; })) {
-                    result = result.replace(RegExp("\\b" + saferegex(j) + "\\b", "gi"), stringify(knowledge[j]))
+                    result = result.replace(RegExp((/^\w/.test(j)? "\\b" : "") + saferegex(j) + (/\w$/.test(j)? "\\b" : ""), "gi"), stringify(knowledge[j]))
                     result = result.replace(/(['`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
                         strings[i] = x;
                         return '"' + i++ + '"';
