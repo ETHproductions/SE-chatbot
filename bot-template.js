@@ -21,12 +21,12 @@ function f() {
     var message_id = e.id.match(/\d+/).slice(-1)[0];
 
     console.log(a);
-    if (/@(?!ETH)/i.test(a)) return; // Avoid messages that ping other users
+    if (/@/.test(a) && !/@ETHbot/i.test(a)) return; // Avoid messages that ping other users
     if (username == "ETHbot") return; // Avoid your own messages
  
     var y = "Your message here";
  
-    // reply after 3 seconds
+    // reply after 3 seconds to avoid rate-limiting
     setTimeout(function(x, id) {
         post(x, id);
     }, 3000, y, message_id);
