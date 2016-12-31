@@ -80,7 +80,7 @@ function denumber(x) {
 }
 
 function safeeval(code) {
-    if (/[A-Za-z$_]/.test(code.replace(/infinity|(['"`])(\\.|(?!\1).)+\1/gi, "")))
+    if (/[A-Za-z$_]/.test(code.replace(/[\d.]+e[+-]?\d+|infinity|(['"`])(\\.|(?!\1).)+\1/gi, "")))
         throw "I don't know what " + code + " means";
     return eval(code);
 }
@@ -231,15 +231,15 @@ function f() {
             var missed = [];
             a.replace(/((?:[^?](?! is ))*.) is (.+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
                 if (/[<>:,()[\]?!;]/.test(x)) return;
-                x = x.replace(/\bmy\b/gi, username + "'s")
-                result = x.toLowerCase().replace(/\byour\b/g, "my");
+                x = x.toLowerCase().replace(/\bmy\b/gi, username + "'s")
+                result = x.replace(/\byour\b/g, "my");
                 var strings = [],
                     i = 0,
                     failed = "";
                 y = y.toLowerCase().replace(/\bmy\b/g, username + "'s").replace(/\byour\b/g, "my");
                 var obj = ETHeval(y, username);
                 if (obj.error) missed.push([x, obj.result]);
-                else learned.push([x, obj.result]);
+                else knowledge[x] = obj.result, learned.push([x, obj.result]);
             });
 
             function mappy(x) {
