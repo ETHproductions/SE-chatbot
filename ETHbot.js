@@ -325,7 +325,7 @@ function f() {
     // Generate a random sentence
     else {
         firsts = [];
-        nexts = {"because":["the","I"]};
+        nexts = {"because":["the","I"],"yes":["punc-period"],"no":["punc-period"],"maybe":["punc-period"],"I":["don't"],"don't":["know"],"know":["punc-period"]};
         [].forEach.call(document.getElementsByClassName("message"), function(x) {
             var username = x.parentElement.parentElement.querySelector(".signature .username").textContent;
             if (username === "ETHbot") return;
@@ -365,7 +365,8 @@ function f() {
         });
         var prevword = "";
         if (/why/i.test(a)) prevword = "because";
-        else if (/^(are(n't| )|is(n't| )|do )/i.test(a)) prevword = ["yes", "no", "maybe", "i"][Math.random() * 4 | 0]
+        else if (/^(are(n't| )|is(n't| )|do )/i.test(a)) prevword = ["yes", "no", "maybe", "i"][Math.random() * 4 | 0];
+        else if (/hello|hi/i.test(a)) prevword = ["hello", "hi"][Math.random() * 2 | 0];
         else prevword = firsts[Math.random() * firsts.length | 0];
         var nextword = "ERROR";
         var sentence = [prevword];
