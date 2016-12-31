@@ -1,6 +1,6 @@
 function post(x, id) {
     if (!x) x = "ERROR";
-    document.getElementById('input').value = (id ? ":" + id + " ": "") + x;
+    document.getElementById('input').value = chunk((id ? ":" + id + " ": "") + x, 500).join("\n");
     document.getElementById("sayit-button").click()
 }
 
@@ -89,6 +89,12 @@ function saferegex(str) {
     return str.replace(/[\[\](){}\\.?*+\-^$|]/g, "\\$&");
 }
 
+function chunk(str, len) {
+    if (str.length < len) return [str];
+    for (var i = len; str[i] !== " "; i--);
+    return [str.slice(0, i), ...chunk(str.slice(i+1), len)];
+}
+
 function f() {
     for (var i of document.getElementsByClassName("pending"))
         for (var j of i.children)
@@ -134,7 +140,7 @@ function f() {
                 post("Error processing question.", message_id);
                 return;
             }
-            result = result.toLowerCase().replace(/your/g, "my");
+            result = result.toLowerCase().replace(/my/g, username + "'s").replace(/your/g, "my");
             text = "I've never heard of " + result;
             if (/the next term (?:in|of)/i.test(a) || /\d,?\.\.\./.test(a) || /comes (?:next in|after)/i.test(a)) {
                 var seq = [];
@@ -184,7 +190,7 @@ function f() {
                 var strings = [],
                     i = 0,
                     failed = "",
-                    original = result,
+                    original = result.replace(RegExp("\\b" + saferegex(username + "'s") + "\\b", "g"), "your"),
                     remove = [];
                 result = result.replace(/(["'`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
                     strings[i] = x;
@@ -220,12 +226,13 @@ function f() {
             var missed = [];
             a.replace(/((?:[^?](?! is ))*.) is (.+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
                 if (/[<>:,()[\]?!;]/.test(x)) return;
-                result = x.toLowerCase().replace(/your/g, "my");
+                x = x.replace(/\bmy\b/gi, username + "'s")
+                result = x.toLowerCase().replace(/\byour\b/g, "my");
                 var strings = [],
                     i = 0,
                     failed = "";
-                y = y.toLowerCase().replace(/your/g, "my");
-                y = y.replace(/"(\\.|[^"\\])+"/g, function(z) {
+                y = y.toLowerCase().replace(/\bmy\b/g, username + "'s").replace(/\byour\b/g, "my");
+                y = y.replace(/(["'`])(\\.|(?!\1).)+\1/g, function(z) {
                     strings[i] = z;
                     return '"' + i++ + '"'
                 });
@@ -307,7 +314,7 @@ function f() {
     }
     
     else if (/Save\.|Load\./.test(a) && !isbot) {
-        if (/^ETHp/.test(username)) {
+        if (username === "ETHproductions") {
             if (/Save\./.test(a)) save();
             if (/Load\./.test(a)) load();
             post("Sure thing, master!", message_id);
