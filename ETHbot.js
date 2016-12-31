@@ -240,7 +240,7 @@ function f() {
                 y = y.toLowerCase().replace(/\bmy\b/g, username + "'s").replace(/\byour\b/g, "my");
                 var obj = ETHeval(y, username);
                 if (obj.error) missed.push([x, obj.result]);
-                else knowledge[x] = obj.result, learned.push([x, obj.result]);
+                else knowledge[x.trim()] = obj.result, learned.push([x, obj.result]);
             });
 
             if (learned.length > 0) {
