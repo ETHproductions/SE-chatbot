@@ -81,7 +81,7 @@ function denumber(x) {
 
 function safeeval(code) {
     if (/[A-Za-z$_]/.test(code.replace(/[\d.]+e[+-]?\d+|infinity|(['"`])(\\.|(?!\1).)+\1/gi, "")))
-        throw "I don't know what " + code + " means";
+        throw "I don't know what " + stringify(code) + " means";
     return eval(code);
 }
 
@@ -242,16 +242,19 @@ function f() {
                 else knowledge[x] = obj.result, learned.push([x, obj.result]);
             });
 
-            function mappy(x) {
-                return x[0] + " (" + stringify(x[1]) + ")"
-            }
             if (learned.length > 0) {
-                text = "Learned these words: " + learned.map(mappy).join(", ");
+                text = "Learned these words: " + learned.map(function(x) {
+                    return x[0] + " (" + stringify(x[1]) + ")"
+                }).join(", ");
                 if (missed.length > 0) {
-                    text += "\nBut I didn't understand these: " + missed.map(mappy).join(", ");
+                    text += "\nBut I didn't understand these: " + missed.map(function(x) {
+                        return x[0] + " (" + x[1] + ")"
+                    }).join(", ");
                 }
             } else if (missed.length > 0) {
-                text += "I didn't understand these words: " + missed.map(mappy).join(", ");
+                text += "I didn't understand these words: " + missed.map(function(x) {
+                    return x[0] + " (" + x[1] + ")"
+                }).join(", ");
             }
         }
         post(text, message_id);
@@ -296,6 +299,16 @@ function f() {
     // Post directions for defining an operator
     else if (/operator/i.test(a) && !isbot) {
         post("To define an operator, use 'means': 'concat means +.'", message_id);
+    }
+    
+    else if (/how\s+old\s+are\s+you/i.test(a) && !isbot) {
+        var d = new Date(+new Date + 1996560000);
+        post((d.getFullYear() - 2016) + " years, " + d.getMonth() + " months, " + d.getDate() + " days, " + d.getHours() + " hours, " + d.getMinutes() + " minutes, " + d.getSeconds() + " seconds and counting.", message_id)
+    }
+    
+    else if (/when\s+were\s+you\s+born/i.test(a) && !isbot) {
+        // http://chat.stackexchange.com/transcript/message/26014602#26014602
+        post("December 08, 2015, at 9:24 PM EST.");
     }
     
     else if (/Save\.|Load\./.test(a) && !isbot) {
