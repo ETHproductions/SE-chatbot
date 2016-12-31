@@ -85,6 +85,42 @@ function safeeval(code) {
     return eval(code);
 }
 
+function ETHeval(result, username) {
+    var strings = [],
+        i = 0,
+        failed = "",
+        original = result.replace(RegExp("\\b" + saferegex(username + "'s") + "\\b", "g"), "your"),
+        remove = [];
+    result = result.replace(/(["'`])(\\.|(?!\1).)+\1/g, function(x) {
+        strings[i] = x;
+        return '"' + i++ + '"'
+    });
+    for (var j of Object.keys(knowledge).sort(function(a, b) { return b.length - a.length; })) {
+        result = result.replace(RegExp((/^\w/.test(j)? "\\b" : "") + saferegex(j) + (/\w$/.test(j)? "\\b" : ""), "gi"), stringify(knowledge[j]))
+        result = result.replace(/(['`])(\\.|(?!\1).)+\1/g, function(x) {
+            strings[i] = x;
+            return '"' + i++ + '"';
+        });
+        result = denumber(result);
+    }
+    for (var j of remove) result = result.replace(j, "");
+    result = result.replace(/"(\d+)"/g, function(x, y) {
+        return strings[+y]
+    });
+    var evaled = 0, error;
+    try {
+        evaled = safeeval(result);
+    } catch (e) {
+        error = e;
+        if (/^I don't know/.test(e)) 
+            failed = e;
+        else
+            failed = "I got this error while evaluating " + result + ": '" + e + "'";
+    }
+    if (failed) return {error: true, message: failed, original: original, result: error};
+    return {error: false, message: original[0].toUpperCase() + original.slice(1) + " is " + stringify(evaled), original: original, result: evaled};
+}
+
 function saferegex(str) {
     return str.replace(/[\[\](){}\\.?*+\-^$|]/g, "\\$&");
 }
@@ -187,38 +223,7 @@ function f() {
                     curr.length == 3 ? "The sequence is a little vague, but it's probably " + total :
                     "The next term is " + total);
             } else {
-                var strings = [],
-                    i = 0,
-                    failed = "",
-                    original = result.replace(RegExp("\\b" + saferegex(username + "'s") + "\\b", "g"), "your"),
-                    remove = [];
-                result = result.replace(/(["'`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
-                    strings[i] = x;
-                    return '"' + i++ + '"'
-                });
-                for (var j of Object.keys(knowledge).sort(function(a, b) { return b.length - a.length; })) {
-                    result = result.replace(RegExp((/^\w/.test(j)? "\\b" : "") + saferegex(j) + (/\w$/.test(j)? "\\b" : ""), "gi"), stringify(knowledge[j]))
-                    result = result.replace(/(['`])(\\.|(?!\1)[^\\])+\1/g, function(x) {
-                        strings[i] = x;
-                        return '"' + i++ + '"';
-                    });
-                    result = denumber(result);
-                }
-                for (var j of remove) result = result.replace(j, "");
-                result = result.replace(/"(\d+)"/g, function(x, y) {
-                    return strings[+y]
-                });
-                var evaled = 0;
-                try {
-                    evaled = safeeval(result);
-                } catch (e) {
-                    if (/^I don't know/.test(e)) 
-                        failed = e;
-                    else
-                        failed = "I got this error while evaluating " + result + ": '" + e + "'";
-                }
-                if (failed) text = failed;
-                else text = original[0].toUpperCase() + original.slice(1) + " is " + stringify(evaled);
+                text = ETHeval(result, username).message;
             }
             text += ".";
         } else {
@@ -232,29 +237,9 @@ function f() {
                     i = 0,
                     failed = "";
                 y = y.toLowerCase().replace(/\bmy\b/g, username + "'s").replace(/\byour\b/g, "my");
-                y = y.replace(/(["'`])(\\.|(?!\1).)+\1/g, function(z) {
-                    strings[i] = z;
-                    return '"' + i++ + '"'
-                });
-                y = y.replace(/(\w+[ -])*\w+/gi, function(z) {
-                    if (knowledge.hasOwnProperty(z)) return "knowledge['" + z + "']";
-                    failed = x;
-                    return z
-                });
-                y = y.replace(/"(\d+)"/g, function(_, z) {
-                    return strings[+z]
-                });
-                if (failed) {
-					knowledge[result] = y;
-                    learned.push([x, knowledge[result]]);
-				}
-                else try {
-                    knowledge[result] = eval(y);
-                    learned.push([x, knowledge[result]]);
-                } catch (e) {
-                    knowledge[result] = y;
-                    learned.push([x, knowledge[result]]);
-                }
+                var obj = ETHeval(y, username);
+                if (obj.error) missed.push([x, obj.result]);
+                else learned.push([x, obj.result]);
             });
 
             function mappy(x) {
