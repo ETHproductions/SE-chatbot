@@ -6,14 +6,14 @@ function post(x, id) {
 
 var firsts, nexts;
 
-var last_message = "";
+var last_message = NaN;
 var commands = {};
 var math = Math,
     infinity = Infinity;
 var knowledge;
 
 function stringify(x) {
-    return x && x.slice && x.slice(0, 8) == "DEFINED-" ? x.slice(8) : (typeof(x) == "string" ? "'" : typeof(x) == "object" ? "[" : "") + x + (typeof(x) == "string" ? "'" : typeof(x) == "object" ? "]" : "")
+    return typeof x === "undefined" || x === null ? x + "" : typeof x === "string" ? x.slice(0, 8) == "DEFINED-" ? x.slice(8) : "'" + x.replace(/'|\\/g, "\\$&") + "'" : x.constructor === Array ? "[" + x.map(stringify).join(", ") + "]" : x + "";
 }
 
 function denumber(x) {
@@ -138,9 +138,10 @@ function f() {
                 if (k.innerHTML == "retry") k.click();
 
     var e = [].slice.call(document.getElementsByClassName("message")).slice(-1)[0];
+    if (e == last_message) return;
+    last_message = e;
+    
     var a = [].slice.call(document.getElementsByClassName("content")).slice(-1)[0].textContent;
-    if (a == last_message) return;
-    last_message = a;
 
     var username = "Feeds";
     for (var i of document.getElementsByClassName("username")) username = i.innerHTML;
