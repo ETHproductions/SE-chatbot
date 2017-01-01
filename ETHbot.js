@@ -155,7 +155,9 @@ function f() {
     var isbot = /zalgo|sock|sanbot/i.test(username);
 
     // Handle questions such as "What is your name?" "What is five times seven?" "Who is George Washington?"
-    if (a.match(/ (i|come)s[ ?]/i) && !isbot) {
+    if (a.match(/([^<>:,()[\]?!;]+) (i|come)s[ ?]/i) && !isbot) {
+        if (a.length > 140) // All messages must fit in a tweet
+            return post("That looks a little long, I'd rather not evaluate it...", message_id);
         var text = "",
             result = 0;
         a = denumber(a);
@@ -230,8 +232,7 @@ function f() {
         } else {
             var learned = [];
             var missed = [];
-            a.replace(/((?:[^?](?! is ))*.) is (.+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
-                if (/[<>:,()[\]?!;]/.test(x)) return;
+            a.replace(/((?:(?! is )[^<>:,()[\]?!;])*) is (.+?)(?:\.|$)(?!\w)\s*/gi, function(_, x, y) {
                 x = x.toLowerCase().replace(/\bmy\b/gi, username + "'s")
                 result = x.replace(/\byour\b/g, "my");
                 var strings = [],
