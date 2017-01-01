@@ -127,7 +127,7 @@ function saferegex(str) {
 
 function chunk(str, len) {
     if (str.length < len) return [str];
-    for (var i = len; str[i] !== " "; i--);
+    for (var i = len; str[i] !== " " && i > 400; i--);
     return [str.slice(0, i), ...chunk(str.slice(i+1), len)];
 }
 
