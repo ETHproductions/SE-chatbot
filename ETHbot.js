@@ -313,7 +313,7 @@ function f() {
     }
     
     else if (/Save\.|Load\./.test(a) && !isbot) {
-        if (username === "ETHproductions") {
+        if (e.parentElement.parentElement.querySelector(".signature .owner")) {
             if (/Save\./.test(a)) save();
             if (/Load\./.test(a)) load();
             post("Sure thing, master!", message_id);
@@ -364,9 +364,9 @@ function f() {
             }
         });
         var prevword = "";
-        if (/why/i.test(a)) prevword = "because";
+        if (/\bwhy\b/i.test(a)) prevword = "because";
         else if (/^(are(n't| )|is(n't| )|do )/i.test(a)) prevword = ["yes", "no", "maybe", "i"][Math.random() * 4 | 0];
-        else if (/hello|hi/i.test(a)) prevword = ["hello", "hi"][Math.random() * 2 | 0];
+        else if (/\b(hello|hi)\b/i.test(a)) prevword = ["hello", "hi"][Math.random() * 2 | 0];
         else prevword = firsts[Math.random() * firsts.length | 0];
         var nextword = "ERROR";
         var sentence = [prevword];
